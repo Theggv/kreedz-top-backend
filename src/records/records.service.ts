@@ -11,6 +11,8 @@ import { NubRecords } from './entity/nubrecords.entity';
 import { Players } from './entity/players.entity';
 import { ProRecords } from './entity/prorecords.entity';
 import { RecordsWithWeapons } from './entity/records-with-wpn.entity';
+import { MapDto } from './dto/map.dto';
+import { PlayerDto } from './dto/player.dto';
 
 @Injectable()
 export class RecordsService {
@@ -26,11 +28,15 @@ export class RecordsService {
   ) {}
 
   async getAllPlayers() {
-    return await this.playersRepository.find();
+    const players = await this.playersRepository.find();
+
+    return players.map((x) => new PlayerDto(x));
   }
 
   async getAllMaps() {
-    return await this.mapsRepository.find();
+    const maps = await this.mapsRepository.find();
+
+    return maps.map((x) => new MapDto(x));
   }
 
   async getProRecords(mapName: string) {
@@ -65,7 +71,9 @@ export class RecordsService {
     const map = await this.mapsRepository.findOne({ where: { name: mapName } });
 
     const records = await this.wpnrecordsRepository.find({
-      where: [weapon !== undefined ? { mapId: map.id, weapon } : { mapId: map.id }],
+      where: [
+        weapon !== undefined ? { mapId: map.id, weapon } : { mapId: map.id },
+      ],
       relations: ['player'],
       order: { time: 'ASC' },
     });

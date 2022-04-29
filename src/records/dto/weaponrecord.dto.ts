@@ -1,22 +1,31 @@
-import { NubRecords } from '../entity/nubrecords.entity';
+import { ApiProperty } from '@nestjs/swagger';
 import { RecordsWithWeapons } from '../entity/records-with-wpn.entity';
 import { convertHexToFloat } from '../utils/convertHexToFloat';
 import { formatTimeString } from '../utils/formatTimeString';
 import { Weapons } from '../weapons.enum';
 
 export class WeaponRecordDto {
+  @ApiProperty({ example: 'Player', required: false })
   public readonly userName: string;
+  @ApiProperty({ example: 'STEAM_0:0:123455678', required: false })
   public readonly userSteamId: string;
 
+  @ApiProperty({ example: 'bkz_goldbhop', required: false })
   public readonly mapName: string;
 
+  @ApiProperty({ example: 60.0 })
   public readonly time: number;
+  @ApiProperty({ example: '1:00:00' })
   public readonly timeStr: string;
+  @ApiProperty()
   public readonly date: Date;
 
+  @ApiProperty({ example: 10 })
   public readonly checkpointsCount: number;
+  @ApiProperty({ example: 50 })
   public readonly teleportsCount: number;
 
+  @ApiProperty({ example: 0 })
   public readonly weapon: Weapons;
 
   constructor(
