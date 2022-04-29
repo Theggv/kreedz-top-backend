@@ -1,12 +1,13 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { MapDto } from './dto/map.dto';
-import { NubRecordDto } from './dto/nubrecord.dto';
 import { PlayerDto } from './dto/player.dto';
-import { ProRecordDto } from './dto/prorecord.dto';
-import { WeaponRecordDto } from './dto/weaponrecord.dto';
+import { WeaponsQueryParamsDto } from './dto/query-params-weapons.dto';
+import { QueryParamsDto } from './dto/query-params.dto';
+import { RecordDto } from './dto/record.dto';
 import { RecordsService } from './records.service';
+import { TransformPipe } from './transform.pipe';
 
 @ApiTags('Records')
 @Controller('records')
@@ -28,33 +29,23 @@ export class RecordsController {
   }
 
   @ApiOperation({ summary: 'Get pro records on map' })
-  @ApiResponse({ type: [ProRecordDto] })
-  @Get('/pro/:mapName')
-  getProRecordsForMap(@Param('mapName') mapName: string) {
-    return this.recordsService.getProRecords(mapName);
+  @ApiResponse({ type: [RecordDto] })
+  @Get('/pro')
+  getProRecordsForMap(@Query(TransformPipe) params: QueryParamsDto) {
+    return this.recordsService.getProRecords(params);
   }
 
   @ApiOperation({ summary: 'Get nub records on map' })
-  @ApiResponse({ type: [NubRecordDto] })
-  @Get('/nub/:mapName')
-  getNubRecordsForMap(@Param('mapName') mapName: string) {
-    return this.recordsService.getNubRecords(mapName);
-  }
-
-  @ApiOperation({ summary: 'Get weapon records on map with specific weapon' })
-  @Get('/weapons/:mapName/:weaponId')
-  @ApiResponse({ type: [WeaponRecordDto] })
-  getWeaponRecordsForMapSpecific(
-    @Param('mapName') mapName: string,
-    @Param('weaponId', ParseIntPipe) weaponId: number,
-  ) {
-    return this.recordsService.getRecordsWithWeapons(mapName, weaponId);
+  @ApiResponse({ type: [RecordDto] })
+  @Get('/nub')
+  getNubRecordsForMap(@Query(TransformPipe) params: QueryParamsDto) {
+    return this.recordsService.getNubRecords(params);
   }
 
   @ApiOperation({ summary: 'Get all weapon records on map' })
-  @ApiResponse({ type: [WeaponRecordDto] })
-  @Get('/weapons/:mapName')
-  getWeaponRecordsForMap(@Param('mapName') mapName: string) {
-    return this.recordsService.getRecordsWithWeapons(mapName);
+  @ApiResponse({ type: [RecordDto] })
+  @Get('/weapons')
+  getWeaponRecordsForMap(@Query(TransformPipe) params: WeaponsQueryParamsDto) {
+    return this.recordsService.getRecordsWithWeapons(params);
   }
 }
