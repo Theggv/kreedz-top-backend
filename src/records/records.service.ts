@@ -1,3 +1,6 @@
+import { PageMetaDto } from 'src/pagination/dto/page-meta.dto';
+import { PageOptionsDto } from 'src/pagination/dto/page-options.dto';
+import { PageDto } from 'src/pagination/dto/page.dto';
 import { Repository } from 'typeorm';
 
 import { Injectable } from '@nestjs/common';
@@ -5,7 +8,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { MapDto } from './dto/map.dto';
 import { PlayerDto } from './dto/player.dto';
-import { WeaponsQueryParamsDto } from './dto/query-params-weapons.dto';
 import { QueryParamsDto } from './dto/query-params.dto';
 import { RecordDto } from './dto/record.dto';
 import { Maps } from './entity/maps.entity';
@@ -13,8 +15,6 @@ import { NubRecords } from './entity/nubrecords.entity';
 import { Players } from './entity/players.entity';
 import { ProRecords } from './entity/prorecords.entity';
 import { RecordsWithWeapons } from './entity/records-with-wpn.entity';
-import { PageMetaDto } from 'src/pagination/dto/page-meta.dto';
-import { PageDto } from 'src/pagination/dto/page.dto';
 
 @Injectable()
 export class RecordsService {
@@ -41,9 +41,9 @@ export class RecordsService {
     return maps.map((x) => new MapDto(x));
   }
 
-  async getProRecords(params: QueryParamsDto) {
+  async getProRecords(params: QueryParamsDto): Promise<PageDto<RecordDto>> {
     const map = await this.findMap(params.mapName);
-    if (!map) return [];
+    if (!map) return this.emptyResults(params);
 
     const queryBuilder = this.prorecordsRepository.createQueryBuilder('rec');
 
@@ -65,9 +65,9 @@ export class RecordsService {
     );
   }
 
-  async getNubRecords(params: QueryParamsDto) {
+  async getNubRecords(params: QueryParamsDto): Promise<PageDto<RecordDto>> {
     const map = await this.findMap(params.mapName);
-    if (!map) return [];
+    if (!map) return this.emptyResults(params);
 
     const queryBuilder = this.nubrecordsRepository.createQueryBuilder('rec');
 
@@ -89,9 +89,11 @@ export class RecordsService {
     );
   }
 
-  async getRecordsWithWeapons(params: WeaponsQueryParamsDto) {
+  async getRecordsWithWeapons(
+    params: QueryParamsDto,
+  ): Promise<PageDto<RecordDto>> {
     const map = await this.findMap(params.mapName);
-    if (!map) return [];
+    if (!map) return this.emptyResults(params);
 
     const queryBuilder = this.wpnrecordsRepository.createQueryBuilder('rec');
 
@@ -112,6 +114,10 @@ export class RecordsService {
       entities.map((entity) => new RecordDto(entity, { includePlayer: true })),
       pageMetaDto,
     );
+  }
+
+  private emptyResults(pageOptionsDto: PageOptionsDto) {
+    return new PageDto([], new PageMetaDto({ itemCount: 0, pageOptionsDto }));
   }
 
   private async findMap(name: string) {

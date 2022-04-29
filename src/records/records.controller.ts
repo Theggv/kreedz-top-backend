@@ -1,13 +1,17 @@
+import { PageDto } from 'src/pagination/dto/page.dto';
+
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { MapDto } from './dto/map.dto';
 import { PlayerDto } from './dto/player.dto';
-import { WeaponsQueryParamsDto } from './dto/query-params-weapons.dto';
 import { QueryParamsDto } from './dto/query-params.dto';
 import { RecordDto } from './dto/record.dto';
 import { RecordsService } from './records.service';
 import { TransformPipe } from './transform.pipe';
+import { ApiPaginatedResponse } from 'src/pagination/pagination-response';
+
+type RecordsPage = PageDto<RecordDto>;
 
 @ApiTags('Records')
 @Controller('records')
@@ -28,24 +32,17 @@ export class RecordsController {
     return this.recordsService.getAllMaps();
   }
 
-  @ApiOperation({ summary: 'Get pro records on map' })
+  @ApiOperation({ summary: 'Get records on map' })
   @ApiResponse({ type: [RecordDto] })
-  @Get('/pro')
+  @Get()
   getProRecordsForMap(@Query(TransformPipe) params: QueryParamsDto) {
-    return this.recordsService.getProRecords(params);
-  }
-
-  @ApiOperation({ summary: 'Get nub records on map' })
-  @ApiResponse({ type: [RecordDto] })
-  @Get('/nub')
-  getNubRecordsForMap(@Query(TransformPipe) params: QueryParamsDto) {
-    return this.recordsService.getNubRecords(params);
-  }
-
-  @ApiOperation({ summary: 'Get all weapon records on map' })
-  @ApiResponse({ type: [RecordDto] })
-  @Get('/weapons')
-  getWeaponRecordsForMap(@Query(TransformPipe) params: WeaponsQueryParamsDto) {
-    return this.recordsService.getRecordsWithWeapons(params);
+    switch (params.type) {
+      case 'pro':
+        return this.recordsService.getProRecords(params);
+      case 'nub':
+        return this.recordsService.getNubRecords(params);
+      case 'weapons':
+        return this.recordsService.getRecordsWithWeapons(params);
+    }
   }
 }
