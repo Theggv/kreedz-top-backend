@@ -5,7 +5,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Weapons } from '../weapons.enum';
 
 export class QueryParamsDto extends PageOptionsDto {
-  @ApiProperty()
+  @ApiProperty({ enum: ['pro', 'nub', 'weapons'] })
   type: 'pro' | 'nub' | 'weapons';
 
   @ApiProperty()
