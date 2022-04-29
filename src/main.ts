@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
+import { setupSwagger } from './util/setupSwagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -10,13 +11,7 @@ async function bootstrap() {
   app.enableCors({ credentials: true, origin: process.env.CORS_ORIGIN });
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
-  const config = new DocumentBuilder()
-    .setTitle('Kreedz Top API')
-    .setVersion('1.0.0')
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('/api/docs', app, document);
+  setupSwagger(app);
 
   const PORT = Number(process.env.PORT);
   await app.listen(PORT, () => console.log(`Server started at port ${PORT}`));

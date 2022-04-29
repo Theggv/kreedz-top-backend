@@ -1,6 +1,5 @@
 import { PageMetaDto } from 'src/pagination/dto/page-meta.dto';
 import { PageOptionsDto } from 'src/pagination/dto/page-options.dto';
-import { PageDto } from 'src/pagination/dto/page.dto';
 import { Repository } from 'typeorm';
 
 import { Injectable } from '@nestjs/common';
@@ -10,6 +9,7 @@ import { MapDto } from './dto/map.dto';
 import { PlayerDto } from './dto/player.dto';
 import { QueryParamsDto } from './dto/query-params.dto';
 import { RecordDto } from './dto/record.dto';
+import { RecordsPageDto } from './dto/records-page.dto';
 import { Maps } from './entity/maps.entity';
 import { NubRecords } from './entity/nubrecords.entity';
 import { Players } from './entity/players.entity';
@@ -41,7 +41,7 @@ export class RecordsService {
     return maps.map((x) => new MapDto(x));
   }
 
-  async getProRecords(params: QueryParamsDto): Promise<PageDto<RecordDto>> {
+  async getProRecords(params: QueryParamsDto): Promise<RecordsPageDto> {
     const map = await this.findMap(params.mapName);
     if (!map) return this.emptyResults(params);
 
@@ -59,13 +59,13 @@ export class RecordsService {
 
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto: params });
 
-    return new PageDto(
+    return new RecordsPageDto(
       entities.map((entity) => new RecordDto(entity, { includePlayer: true })),
       pageMetaDto,
     );
   }
 
-  async getNubRecords(params: QueryParamsDto): Promise<PageDto<RecordDto>> {
+  async getNubRecords(params: QueryParamsDto): Promise<RecordsPageDto> {
     const map = await this.findMap(params.mapName);
     if (!map) return this.emptyResults(params);
 
@@ -83,15 +83,13 @@ export class RecordsService {
 
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto: params });
 
-    return new PageDto(
+    return new RecordsPageDto(
       entities.map((entity) => new RecordDto(entity, { includePlayer: true })),
       pageMetaDto,
     );
   }
 
-  async getRecordsWithWeapons(
-    params: QueryParamsDto,
-  ): Promise<PageDto<RecordDto>> {
+  async getRecordsWithWeapons(params: QueryParamsDto): Promise<RecordsPageDto> {
     const map = await this.findMap(params.mapName);
     if (!map) return this.emptyResults(params);
 
@@ -110,14 +108,17 @@ export class RecordsService {
 
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto: params });
 
-    return new PageDto(
+    return new RecordsPageDto(
       entities.map((entity) => new RecordDto(entity, { includePlayer: true })),
       pageMetaDto,
     );
   }
 
   private emptyResults(pageOptionsDto: PageOptionsDto) {
-    return new PageDto([], new PageMetaDto({ itemCount: 0, pageOptionsDto }));
+    return new RecordsPageDto(
+      [],
+      new PageMetaDto({ itemCount: 0, pageOptionsDto }),
+    );
   }
 
   private async findMap(name: string) {

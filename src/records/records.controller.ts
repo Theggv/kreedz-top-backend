@@ -1,20 +1,23 @@
-import { PageDto } from 'src/pagination/dto/page.dto';
-
-import { Controller, Get, Query } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  Query,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { MapDto } from './dto/map.dto';
 import { PlayerDto } from './dto/player.dto';
 import { QueryParamsDto } from './dto/query-params.dto';
 import { RecordDto } from './dto/record.dto';
+import { RecordsPageDto } from './dto/records-page.dto';
 import { RecordsService } from './records.service';
 import { TransformPipe } from './transform.pipe';
-import { ApiPaginatedResponse } from 'src/pagination/pagination-response';
-
-type RecordsPage = PageDto<RecordDto>;
 
 @ApiTags('Records')
 @Controller('records')
+@UseInterceptors(ClassSerializerInterceptor)
 export class RecordsController {
   constructor(private recordsService: RecordsService) {}
 
@@ -32,10 +35,12 @@ export class RecordsController {
     return this.recordsService.getAllMaps();
   }
 
-  @ApiOperation({ summary: 'Get records on map' })
-  @ApiResponse({ type: [RecordDto] })
   @Get()
-  getProRecordsForMap(@Query(TransformPipe) params: QueryParamsDto) {
+  @ApiOperation({ summary: 'Get records on map' })
+  @ApiResponse({ type: RecordsPageDto })
+  getProRecordsForMap(
+    @Query(TransformPipe) params: QueryParamsDto,
+  ): Promise<RecordsPageDto> {
     switch (params.type) {
       case 'pro':
         return this.recordsService.getProRecords(params);
