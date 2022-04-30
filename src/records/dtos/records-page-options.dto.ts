@@ -2,9 +2,9 @@ import { PageOptionsDto } from 'src/common/dtos/page-options.dto';
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-import { Weapons } from '../weapons.enum';
+import { Weapons } from '../enums';
 
-export class QueryParamsDto extends PageOptionsDto {
+export class RecordsPageOptionsDto extends PageOptionsDto {
   @ApiProperty({ enum: ['pro', 'nub', 'weapons'] })
   type: 'pro' | 'nub' | 'weapons';
 

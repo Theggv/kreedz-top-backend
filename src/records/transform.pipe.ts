@@ -1,10 +1,10 @@
 import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';
 
-import { QueryParamsDto } from './dto/query-params.dto';
+import { RecordsPageOptionsDto } from './dtos';
 
 @Injectable()
-export class TransformPipe implements PipeTransform<QueryParamsDto> {
-  transform(value: QueryParamsDto, metadata: ArgumentMetadata) {
+export class TransformPipe implements PipeTransform<RecordsPageOptionsDto> {
+  transform(value: RecordsPageOptionsDto, metadata: ArgumentMetadata) {
     value.mapName = value.mapName.toLowerCase();
 
     return value;

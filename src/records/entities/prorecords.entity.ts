@@ -1,12 +1,7 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryColumn,
-} from 'typeorm';
-import { Maps } from './maps.entity';
-import { Players } from './players.entity';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+
+import { Maps } from '../../maps/entities';
+import { Users } from '../../users/entities';
 
 @Entity({ name: 'kz_protop' })
 export class ProRecords {
@@ -27,9 +22,9 @@ export class ProRecords {
   })
   date: Date;
 
-  @ManyToOne(() => Players, (player) => player.proRecords)
+  @ManyToOne(() => Users, (player) => player.proRecords)
   @JoinColumn({ name: 'uid' })
-  player: Players;
+  player: Users;
 
   @ManyToOne(() => Maps, (map) => map.proRecords)
   @JoinColumn({ name: 'mapid' })

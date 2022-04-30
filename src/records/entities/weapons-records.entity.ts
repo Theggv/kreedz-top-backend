@@ -1,9 +1,10 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
-import { Maps } from './maps.entity';
-import { Players } from './players.entity';
+
+import { Maps } from '../../maps/entities';
+import { Users } from '../../users/entities';
 
 @Entity({ name: 'kz_weapontop' })
-export class RecordsWithWeapons {
+export class WeaponsRecords {
   @PrimaryColumn({ type: 'integer', name: 'uid', nullable: false })
   userId: number;
 
@@ -30,9 +31,9 @@ export class RecordsWithWeapons {
   @Column({ type: 'integer', name: 'weapon', nullable: false, default: 0 })
   weapon: number;
 
-  @ManyToOne(() => Players, (player) => player.weaponRecords)
+  @ManyToOne(() => Users, (player) => player.weaponRecords)
   @JoinColumn({ name: 'uid' })
-  player: Players;
+  player: Users;
 
   @ManyToOne(() => Maps, (map) => map.weaponRecords)
   @JoinColumn({ name: 'mapid' })

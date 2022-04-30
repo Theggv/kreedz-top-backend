@@ -1,25 +1,20 @@
-import { Module } from '@nestjs/common';
+import { MapsModule } from 'src/maps/maps.module';
+import { UsersModule } from 'src/users/users.module';
+
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { Maps } from './entity/maps.entity';
-import { NubRecords } from './entity/nubrecords.entity';
-import { Players } from './entity/players.entity';
-import { ProRecords } from './entity/prorecords.entity';
-import { RecordsWithWeapons } from './entity/records-with-wpn.entity';
+import { NubRecords, ProRecords, WeaponsRecords } from './entities';
 import { RecordsController } from './records.controller';
 import { RecordsService } from './records.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Players,
-      Maps,
-      ProRecords,
-      NubRecords,
-      RecordsWithWeapons,
-    ]),
+    forwardRef(() => UsersModule),
+    forwardRef(() => MapsModule),
+    TypeOrmModule.forFeature([ProRecords, NubRecords, WeaponsRecords]),
   ],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule, RecordsService],
   providers: [RecordsService],
   controllers: [RecordsController],
 })

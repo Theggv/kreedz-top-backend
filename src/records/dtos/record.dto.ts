@@ -1,12 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { NubRecords } from '../entity/nubrecords.entity';
-import { ProRecords } from '../entity/prorecords.entity';
-import { RecordsWithWeapons } from '../entity/records-with-wpn.entity';
-import { convertHexToFloat } from '../util/convertHexToFloat';
-import { formatDate } from '../util/formatDate';
-import { formatTimeString } from '../util/formatTimeString';
-import { Weapons } from '../weapons.enum';
+import { NubRecords, ProRecords, WeaponsRecords } from '../entities';
+import { Weapons } from '../enums';
+import { convertHexToFloat, formatDate, formatTimeString } from '../utils/';
 
 export class RecordDto {
   @ApiProperty({ example: 'Player', required: false })
@@ -34,7 +30,7 @@ export class RecordDto {
   public readonly weapon: Weapons;
 
   constructor(
-    record: ProRecords | NubRecords | RecordsWithWeapons,
+    record: ProRecords | NubRecords | WeaponsRecords,
     options: { includePlayer?: boolean; includeMap?: boolean } = {
       includePlayer: false,
       includeMap: false,

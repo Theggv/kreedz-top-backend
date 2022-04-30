@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
-import { Maps } from './maps.entity';
-import { Players } from './players.entity';
+
+import { Maps } from '../../maps/entities';
+import { Users } from '../../users/entities';
 
 @Entity({ name: 'kz_nubtop' })
 export class NubRecords {
@@ -27,9 +28,9 @@ export class NubRecords {
   @Column({ type: 'integer', name: 'tp', nullable: false, default: 0 })
   teleportsCount: number;
 
-  @ManyToOne(() => Players, (player) => player.nubRecords)
+  @ManyToOne(() => Users, (player) => player.nubRecords)
   @JoinColumn({ name: 'uid' })
-  player: Players;
+  player: Users;
 
   @ManyToOne(() => Maps, (map) => map.nubRecords)
   @JoinColumn({ name: 'mapid' })

@@ -35,4 +35,17 @@ export class MapsService {
       pageMetaDto,
     );
   }
+
+  async getMapByName(name: string): Promise<MapDto | null> {
+    const queryBuilder = this.mapsRepository.createQueryBuilder('map');
+
+    // prepare query
+    queryBuilder.where('map.name = :name', { name });
+
+    const entity = await queryBuilder.getOne();
+
+    if (!entity) return null;
+
+    return new MapDto(entity);
+  }
 }
