@@ -1,4 +1,4 @@
-import { PageOptionsDto } from 'src/pagination/dto/page-options.dto';
+import { PageOptionsDto } from 'src/common/dtos/page-options.dto';
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 

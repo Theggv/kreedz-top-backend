@@ -1,5 +1,5 @@
-import { PageMetaDto } from 'src/pagination/dto/page-meta.dto';
-import { PageOptionsDto } from 'src/pagination/dto/page-options.dto';
+import { PageMetaDto } from 'src/common/dtos/page-meta.dto';
+import { PageOptionsDto } from 'src/common/dtos/page-options.dto';
 import { Repository } from 'typeorm';
 
 import { Injectable } from '@nestjs/common';

@@ -1,6 +1,6 @@
 import { IsArray } from 'class-validator';
-import { PageMetaDto } from 'src/pagination/dto/page-meta.dto';
-import { PageDto } from 'src/pagination/dto/page.dto';
+import { PageMetaDto } from 'src/common/dtos/page-meta.dto';
+import { PageDto } from 'src/common/dtos/page.dto';
 
 import { ApiProperty } from '@nestjs/swagger';
 
