@@ -6,12 +6,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiPaginatedResponse } from 'src/common/decorators';
+import { PageDto } from 'src/common/dtos';
 
 import { MapDto } from './dto/map.dto';
 import { PlayerDto } from './dto/player.dto';
 import { QueryParamsDto } from './dto/query-params.dto';
 import { RecordDto } from './dto/record.dto';
-import { RecordsPageDto } from './dto/records-page.dto';
 import { RecordsService } from './records.service';
 import { TransformPipe } from './transform.pipe';
 
@@ -37,10 +38,10 @@ export class RecordsController {
 
   @Get()
   @ApiOperation({ summary: 'Get records on map' })
-  @ApiResponse({ type: RecordsPageDto })
+  @ApiPaginatedResponse(RecordDto)
   getProRecordsForMap(
     @Query(TransformPipe) params: QueryParamsDto,
-  ): Promise<RecordsPageDto> {
+  ): Promise<PageDto<RecordDto>> {
     switch (params.type) {
       case 'pro':
         return this.recordsService.getProRecords(params);
