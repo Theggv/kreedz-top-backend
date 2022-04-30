@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { Players } from '../entity/players.entity';
+import { Users } from '../entities';
 
-export class PlayerDto {
+export class UserDto {
   @ApiProperty({ example: 1 })
   public readonly id: number;
 
@@ -12,9 +12,9 @@ export class PlayerDto {
   @ApiProperty({ example: 'STEAM_0:0:123455678' })
   public readonly steamId: string;
 
-  constructor(player: Players) {
-    this.id = player.id;
-    this.name = player.lastName;
-    this.steamId = player.steamId;
+  constructor(user: Users) {
+    this.id = user.id;
+    this.name = user.lastName;
+    this.steamId = user.steamId;
   }
 }

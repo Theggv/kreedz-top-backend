@@ -1,3 +1,4 @@
+import { NubRecords, ProRecords, WeaponsRecords } from 'src/records/entities';
 import {
   Column,
   Entity,
@@ -5,12 +6,9 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { NubRecords } from './nubrecords.entity';
-import { ProRecords } from './prorecords.entity';
-import { RecordsWithWeapons } from './records-with-wpn.entity';
 
 @Entity({ name: 'kz_uid' })
-export class Players {
+export class Users {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -33,7 +31,7 @@ export class Players {
   @JoinColumn({ name: 'id' })
   nubRecords: NubRecords[];
 
-  @OneToMany(() => RecordsWithWeapons, (record) => record.player)
+  @OneToMany(() => WeaponsRecords, (record) => record.player)
   @JoinColumn({ name: 'id' })
-  weaponRecords: RecordsWithWeapons[];
+  weaponRecords: WeaponsRecords[];
 }
