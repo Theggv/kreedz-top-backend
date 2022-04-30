@@ -1,3 +1,4 @@
+import { NubRecords, ProRecords, WeaponsRecords } from 'src/records/entities';
 import {
   Column,
   Entity,
@@ -5,9 +6,6 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { NubRecords } from './nubrecords.entity';
-import { ProRecords } from './prorecords.entity';
-import { RecordsWithWeapons } from './records-with-wpn.entity';
 
 @Entity({ name: 'kz_maps' })
 export class Maps {
@@ -25,7 +23,7 @@ export class Maps {
   @JoinColumn({ name: 'id' })
   nubRecords: NubRecords[];
 
-  @OneToMany(() => RecordsWithWeapons, (record) => record.map)
+  @OneToMany(() => WeaponsRecords, (record) => record.map)
   @JoinColumn({ name: 'id' })
-  weaponRecords: RecordsWithWeapons[];
+  weaponRecords: WeaponsRecords[];
 }

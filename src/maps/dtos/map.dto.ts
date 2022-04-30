@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { Maps } from '../entity/maps.entity';
+import { Maps } from '../entities';
 
 export class MapDto {
   @ApiProperty({ example: 1 })
