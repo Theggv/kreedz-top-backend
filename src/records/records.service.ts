@@ -2,13 +2,18 @@ import { PageDto } from 'src/common/dtos';
 import { PageMetaDto } from 'src/common/dtos/page-meta.dto';
 import { PageOptionsDto } from 'src/common/dtos/page-options.dto';
 import { MapsService } from 'src/maps/maps.service';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { RecordDto, RecordsPageOptionsDto } from './dtos';
 import { NubRecords, ProRecords, WeaponsRecords } from './entities';
+import { Weapons } from './enums';
+import { GetRecordsOptions } from './interfaces';
+
+type RecordType = RecordsPageOptionsDto['type'];
+type RecordMapper<T> = { [Property in RecordType]: T };
 
 @Injectable()
 export class RecordsService {
@@ -22,86 +27,116 @@ export class RecordsService {
     private wpnrecordsRepository: Repository<WeaponsRecords>,
   ) {}
 
-  async getProRecords(
-    params: RecordsPageOptionsDto,
-  ): Promise<PageDto<RecordDto>> {
+  async getRecords(params: RecordsPageOptionsDto): Promise<PageDto<RecordDto>> {
     const map = await this.mapsService.getMapByName(params.mapName);
     if (!map) return this.emptyResults(params);
 
-    const queryBuilder = this.prorecordsRepository.createQueryBuilder('rec');
+    const resolver: RecordMapper<() => Promise<PageDto<RecordDto>>> = {
+      pro: () =>
+        this.getProRecords(params, { includePlayer: true, mapId: map.id }),
+      nub: () =>
+        this.getNubRecords(params, { includePlayer: true, mapId: map.id }),
+    };
 
-    queryBuilder
-      .where('rec.mapId = :id', { id: map.id })
-      .orderBy('rec.time', 'ASC')
-      .skip(params.skip)
-      .take(params.take)
-      .leftJoinAndSelect('rec.player', 'player');
-
-    const itemCount = await queryBuilder.getCount();
-    const { entities } = await queryBuilder.getRawAndEntities();
-
-    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto: params });
-
-    return new PageDto(
-      entities.map((entity) => new RecordDto(entity, { includePlayer: true })),
-      pageMetaDto,
-    );
+    return await resolver[params.type]();
   }
 
-  async getNubRecords(
+  private async getProRecords(
     params: RecordsPageOptionsDto,
+    options: GetRecordsOptions,
   ): Promise<PageDto<RecordDto>> {
-    const map = await this.mapsService.getMapByName(params.mapName);
-    if (!map) return this.emptyResults(params);
+    // Prepare query
+    const queryBuilder: SelectQueryBuilder<ProRecords | WeaponsRecords> =
+      params.weapon === Weapons.WEAPON_USP
+        ? this.prorecordsRepository.createQueryBuilder('rec')
+        : this.wpnrecordsRepository
+            .createQueryBuilder('rec')
+            .where('rec.teleportsCount = 0');
 
-    const queryBuilder = this.nubrecordsRepository.createQueryBuilder('rec');
+    if (options.mapId !== undefined) {
+      queryBuilder.andWhere('rec.mapId = :mapId', { mapId: options.mapId });
+    }
+    if (options.userId !== undefined) {
+      queryBuilder.andWhere('rec.userId = :userId', { userId: options.userId });
+    }
 
-    queryBuilder
-      .where('rec.mapId = :id', { id: map.id })
-      .orderBy('rec.time', 'ASC')
-      .skip(params.skip)
-      .take(params.take)
-      .leftJoinAndSelect('rec.player', 'player');
+    if (options.includeMap) this.queryWithMap(queryBuilder);
+    if (options.includePlayer) this.queryWithPlayer(queryBuilder);
 
-    const itemCount = await queryBuilder.getCount();
-    const { entities } = await queryBuilder.getRawAndEntities();
+    // Add pagination
+    this.queryWithPagination(queryBuilder, params);
 
-    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto: params });
+    // Sort records by time
+    queryBuilder.orderBy('rec.time', 'ASC');
 
-    return new PageDto(
-      entities.map((entity) => new RecordDto(entity, { includePlayer: true })),
-      pageMetaDto,
-    );
+    return await this.generateResponse(queryBuilder, params, options);
   }
 
-  async getRecordsWithWeapons(
+  private async getNubRecords(
     params: RecordsPageOptionsDto,
+    options: GetRecordsOptions,
   ): Promise<PageDto<RecordDto>> {
-    const map = await this.mapsService.getMapByName(params.mapName);
-    if (!map) return this.emptyResults(params);
+    // Prepare query
+    const queryBuilder: SelectQueryBuilder<ProRecords | WeaponsRecords> =
+      params.weapon === Weapons.WEAPON_USP
+        ? this.nubrecordsRepository.createQueryBuilder('rec')
+        : this.wpnrecordsRepository
+            .createQueryBuilder('rec')
+            .where('rec.teleportsCount != 0');
 
-    const queryBuilder = this.wpnrecordsRepository.createQueryBuilder('rec');
+    if (options.mapId !== undefined) {
+      queryBuilder.andWhere('rec.mapId = :mapId', { mapId: options.mapId });
+    }
+    if (options.userId !== undefined) {
+      queryBuilder.andWhere('rec.userId = :userId', { userId: options.userId });
+    }
 
-    queryBuilder
-      .where('rec.mapId = :id ', { id: map.id })
-      .andWhere('rec.weapon = :weapon', { weapon: params.weapon })
-      .orderBy('rec.time', 'ASC')
-      .skip(params.skip)
-      .take(params.take)
-      .leftJoinAndSelect('rec.player', 'player');
+    if (options.includeMap) this.queryWithMap(queryBuilder);
+    if (options.includePlayer) this.queryWithPlayer(queryBuilder);
 
-    const itemCount = await queryBuilder.getCount();
-    const { entities } = await queryBuilder.getRawAndEntities();
+    // Add pagination
+    this.queryWithPagination(queryBuilder, params);
 
-    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto: params });
+    // Sort records by time
+    queryBuilder.orderBy('rec.time', 'ASC');
 
-    return new PageDto(
-      entities.map((entity) => new RecordDto(entity, { includePlayer: true })),
-      pageMetaDto,
-    );
+    return await this.generateResponse(queryBuilder, params, options);
   }
 
   private emptyResults(pageOptionsDto: PageOptionsDto) {
     return new PageDto([], new PageMetaDto({ itemCount: 0, pageOptionsDto }));
+  }
+
+  private queryWithMap<T>(queryBuilder: SelectQueryBuilder<T>) {
+    queryBuilder.leftJoinAndSelect('rec.map', 'map');
+  }
+
+  private queryWithPlayer<T>(queryBuilder: SelectQueryBuilder<T>) {
+    queryBuilder.leftJoinAndSelect('rec.player', 'player');
+  }
+
+  private queryWithPagination<T>(
+    queryBuilder: SelectQueryBuilder<T>,
+    params: PageOptionsDto,
+  ) {
+    queryBuilder.skip(params.skip).take(params.take);
+  }
+
+  private async generateResponse<
+    T extends WeaponsRecords | ProRecords | NubRecords,
+  >(
+    queryBuilder: SelectQueryBuilder<T>,
+    params: RecordsPageOptionsDto,
+    options: GetRecordsOptions,
+  ) {
+    const itemCount = await queryBuilder.getCount();
+    const { entities } = await queryBuilder.getRawAndEntities();
+
+    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto: params });
+
+    return new PageDto(
+      entities.map((entity) => new RecordDto(entity, options)),
+      pageMetaDto,
+    );
   }
 }

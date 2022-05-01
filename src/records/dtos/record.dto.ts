@@ -1,17 +1,19 @@
+import { MapDto } from 'src/maps/dtos';
+import { UserDto } from 'src/users/dtos';
+
 import { ApiProperty } from '@nestjs/swagger';
 
 import { NubRecords, ProRecords, WeaponsRecords } from '../entities';
 import { Weapons } from '../enums';
+import { GetRecordsOptions } from '../interfaces';
 import { convertHexToFloat, formatDate, formatTimeString } from '../utils/';
 
 export class RecordDto {
-  @ApiProperty({ example: 'Player', required: false })
-  public readonly userName: string;
-  @ApiProperty({ example: 'STEAM_0:0:123455678', required: false })
-  public readonly userSteamId: string;
+  @ApiProperty({ type: () => UserDto })
+  public readonly user: UserDto;
 
-  @ApiProperty({ example: 'bkz_goldbhop', required: false })
-  public readonly mapName: string;
+  @ApiProperty({ type: () => MapDto })
+  public readonly map: MapDto;
 
   @ApiProperty({ example: 60.0 })
   public readonly time: number;
@@ -31,10 +33,7 @@ export class RecordDto {
 
   constructor(
     record: ProRecords | NubRecords | WeaponsRecords,
-    options: { includePlayer?: boolean; includeMap?: boolean } = {
-      includePlayer: false,
-      includeMap: false,
-    },
+    options: GetRecordsOptions,
   ) {
     this.time = convertHexToFloat(record.time);
     this.timeStr = formatTimeString(this.time);
@@ -48,12 +47,11 @@ export class RecordDto {
     this.dateStr = formatDate(record.date);
 
     if (options.includePlayer) {
-      this.userName = record.player.lastName;
-      this.userSteamId = record.player.steamId;
+      this.user = new UserDto(record.player);
     }
 
     if (options.includeMap) {
-      this.mapName = record.map.name;
+      this.map = new MapDto(record.map);
     }
   }
 }
