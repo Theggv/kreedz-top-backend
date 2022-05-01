@@ -51,7 +51,8 @@ export class RecordsService {
         ? this.prorecordsRepository.createQueryBuilder('rec')
         : this.wpnrecordsRepository
             .createQueryBuilder('rec')
-            .where('rec.teleportsCount = 0');
+            .where('rec.teleportsCount = 0')
+            .andWhere('rec.weapon = :weaponId', { weaponId: params.weapon });
 
     if (options.mapId !== undefined) {
       queryBuilder.andWhere('rec.mapId = :mapId', { mapId: options.mapId });
@@ -82,7 +83,8 @@ export class RecordsService {
         ? this.nubrecordsRepository.createQueryBuilder('rec')
         : this.wpnrecordsRepository
             .createQueryBuilder('rec')
-            .where('rec.teleportsCount != 0');
+            .where('rec.teleportsCount != 0')
+            .andWhere('rec.weapon = :weaponId', { weaponId: params.weapon });
 
     if (options.mapId !== undefined) {
       queryBuilder.andWhere('rec.mapId = :mapId', { mapId: options.mapId });
