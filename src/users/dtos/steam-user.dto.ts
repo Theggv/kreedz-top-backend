@@ -1,14 +1,19 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { PlayerSummary } from 'steamapi';
 
 import { Users } from '../entities';
 
 export class SteamUserDto {
+  @ApiProperty({ example: 'Player' })
   serverNickname: string;
+  @ApiProperty({ example: 'STEAM_0:0:12345678' })
   steamId: string;
 
+  @ApiProperty({ example: 'Player' })
   steamNickname: string;
   profileUrl: string;
   avatarUrl: string;
+  @ApiProperty({ example: '76561197960265728' })
   commId: string;
 
   constructor(user: Users, summary: PlayerSummary) {

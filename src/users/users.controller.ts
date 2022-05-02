@@ -2,7 +2,7 @@ import { ApiPaginatedResponse } from 'src/common/decorators';
 import { PageDto, PageOptionsDto } from 'src/common/dtos';
 
 import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { UserDto } from './dtos';
 import { UsersService } from './users.service';
@@ -29,8 +29,8 @@ export class UsersController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get user by id' })
-  @ApiPaginatedResponse(UserDto)
-  getUserById(@Param('id', ParseIntPipe) id: number):Promise<SteamUserDto> {
+  @ApiResponse({ type: () => SteamUserDto })
+  getUserById(@Param('id', ParseIntPipe) id: number): Promise<SteamUserDto> {
     return this.usersService.getUserById(id);
   }
 }
