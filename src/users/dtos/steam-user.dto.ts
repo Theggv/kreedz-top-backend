@@ -11,7 +11,9 @@ export class SteamUserDto {
 
   @ApiProperty({ example: 'Player' })
   steamNickname: string;
+  @ApiProperty()
   profileUrl: string;
+  @ApiProperty()
   avatarUrl: string;
   @ApiProperty({ example: '76561197960265728' })
   commId: string;
