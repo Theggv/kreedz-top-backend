@@ -1,4 +1,4 @@
-import { NubRecords, ProRecords, WeaponsRecords } from 'src/records/entities';
+import { Records } from 'src/records/entities';
 import {
   Column,
   Entity,
@@ -23,15 +23,7 @@ export class Users {
   })
   lastName: string;
 
-  @OneToMany(() => ProRecords, (record) => record.player)
+  @OneToMany(() => Records, (record) => record.player)
   @JoinColumn({ name: 'id' })
-  proRecords: ProRecords[];
-
-  @OneToMany(() => NubRecords, (record) => record.player)
-  @JoinColumn({ name: 'id' })
-  nubRecords: NubRecords[];
-
-  @OneToMany(() => WeaponsRecords, (record) => record.player)
-  @JoinColumn({ name: 'id' })
-  weaponRecords: WeaponsRecords[];
+  records: Records[];
 }

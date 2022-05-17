@@ -4,7 +4,7 @@ import { UsersModule } from 'src/users/users.module';
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { NubRecords, ProRecords, WeaponsRecords } from './entities';
+import { Records } from './entities';
 import { RecordsController } from './records.controller';
 import { RecordsService } from './records.service';
 
@@ -12,7 +12,7 @@ import { RecordsService } from './records.service';
   imports: [
     forwardRef(() => UsersModule),
     forwardRef(() => MapsModule),
-    TypeOrmModule.forFeature([ProRecords, NubRecords, WeaponsRecords]),
+    TypeOrmModule.forFeature([Records]),
   ],
   exports: [TypeOrmModule, RecordsService],
   providers: [RecordsService],

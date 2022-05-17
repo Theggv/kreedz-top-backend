@@ -8,7 +8,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { RecordDto, RecordsPageOptionsDto } from './dtos';
-import { NubRecords, ProRecords, WeaponsRecords } from './entities';
+import { Records } from './entities';
 import { Weapons } from './enums';
 import { GetRecordsOptions } from './interfaces';
 
@@ -19,12 +19,8 @@ type RecordMapper<T> = { [Property in RecordType]: T };
 export class RecordsService {
   constructor(
     private mapsService: MapsService,
-    @InjectRepository(ProRecords)
-    private prorecordsRepository: Repository<ProRecords>,
-    @InjectRepository(NubRecords)
-    private nubrecordsRepository: Repository<NubRecords>,
-    @InjectRepository(WeaponsRecords)
-    private wpnrecordsRepository: Repository<WeaponsRecords>,
+    @InjectRepository(Records)
+    private recordsRepository: Repository<Records>,
   ) {}
 
   async getRecords(params: RecordsPageOptionsDto): Promise<PageDto<RecordDto>> {
@@ -46,13 +42,11 @@ export class RecordsService {
     options: GetRecordsOptions,
   ): Promise<PageDto<RecordDto>> {
     // Prepare query
-    const queryBuilder: SelectQueryBuilder<ProRecords | WeaponsRecords> =
-      params.weapon === Weapons.WEAPON_USP
-        ? this.prorecordsRepository.createQueryBuilder('rec')
-        : this.wpnrecordsRepository
-            .createQueryBuilder('rec')
-            .where('rec.teleportsCount = 0')
-            .andWhere('rec.weapon = :weaponId', { weaponId: params.weapon });
+    const queryBuilder = this.recordsRepository
+      .createQueryBuilder('rec')
+      .where('rec.teleportsCount = 0')
+      .andWhere('rec.weapon = :weaponId', { weaponId: params.weapon })
+      .andWhere('rec.airAccelerate = 0');
 
     if (options.mapId !== undefined) {
       queryBuilder.andWhere('rec.mapId = :mapId', { mapId: options.mapId });
@@ -78,13 +72,11 @@ export class RecordsService {
     options: GetRecordsOptions,
   ): Promise<PageDto<RecordDto>> {
     // Prepare query
-    const queryBuilder: SelectQueryBuilder<ProRecords | WeaponsRecords> =
-      params.weapon === Weapons.WEAPON_USP
-        ? this.nubrecordsRepository.createQueryBuilder('rec')
-        : this.wpnrecordsRepository
-            .createQueryBuilder('rec')
-            .where('rec.teleportsCount != 0')
-            .andWhere('rec.weapon = :weaponId', { weaponId: params.weapon });
+    const queryBuilder = this.recordsRepository
+      .createQueryBuilder('rec')
+      .where('rec.teleportsCount != 0')
+      .andWhere('rec.weapon = :weaponId', { weaponId: params.weapon })
+      .andWhere('rec.airAccelerate = 0');
 
     if (options.mapId !== undefined) {
       queryBuilder.andWhere('rec.mapId = :mapId', { mapId: options.mapId });
@@ -124,9 +116,7 @@ export class RecordsService {
     queryBuilder.skip(params.skip).take(params.take);
   }
 
-  private async generateResponse<
-    T extends WeaponsRecords | ProRecords | NubRecords,
-  >(
+  private async generateResponse<T extends Records>(
     queryBuilder: SelectQueryBuilder<T>,
     params: RecordsPageOptionsDto,
     options: GetRecordsOptions,

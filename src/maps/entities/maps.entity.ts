@@ -1,4 +1,4 @@
-import { NubRecords, ProRecords, WeaponsRecords } from 'src/records/entities';
+import { Records } from 'src/records/entities';
 import {
   Column,
   Entity,
@@ -15,15 +15,7 @@ export class Maps {
   @Column({ nullable: false, unique: true, type: 'varchar', name: 'mapname' })
   name: string;
 
-  @OneToMany(() => ProRecords, (record) => record.map)
+  @OneToMany(() => Records, (record) => record.map)
   @JoinColumn({ name: 'id' })
-  proRecords: ProRecords[];
-
-  @OneToMany(() => NubRecords, (record) => record.map)
-  @JoinColumn({ name: 'id' })
-  nubRecords: NubRecords[];
-
-  @OneToMany(() => WeaponsRecords, (record) => record.map)
-  @JoinColumn({ name: 'id' })
-  weaponRecords: WeaponsRecords[];
+  records: Records[];
 }

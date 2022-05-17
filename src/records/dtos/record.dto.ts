@@ -3,7 +3,7 @@ import { UserDto } from 'src/users/dtos';
 
 import { ApiProperty } from '@nestjs/swagger';
 
-import { NubRecords, ProRecords, WeaponsRecords } from '../entities';
+import { Records } from '../entities';
 import { Weapons } from '../enums';
 import { GetRecordsOptions } from '../interfaces';
 import { convertHexToFloat, formatDate, formatTimeString } from '../utils/';
@@ -31,10 +31,7 @@ export class RecordDto {
   @ApiProperty({ example: Weapons.WEAPON_USP })
   public readonly weapon: Weapons;
 
-  constructor(
-    record: ProRecords | NubRecords | WeaponsRecords,
-    options: GetRecordsOptions,
-  ) {
+  constructor(record: Records, options: GetRecordsOptions) {
     this.time = convertHexToFloat(record.time);
     this.timeStr = formatTimeString(this.time);
 
